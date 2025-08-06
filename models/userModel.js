@@ -3,7 +3,7 @@ const validator = require('validator');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 
-const userschema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Please input your name!'],
@@ -71,4 +71,12 @@ const userschema = new mongoose.Schema({
       select: false,
     },
   },
+});
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+
+  this.password = await bcrypt.hash(this.password, 12);
+  this.passwordConfirm = undefined;
+  next();
 });
