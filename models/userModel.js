@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
     },
     email: {
       type: String,
-      require: [true, 'Please input your email address'],
+      required: [true, 'Please input your email address'],
       unique: true,
       lowercase: true,
       validate: [validator.isEmail, 'Please provide a valid email address'],
@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema({
     preference: {
       type: String,
       enum: ['web-design', 'mobile app design', 'collaboration', 'others'],
+      required: [true, 'Please select your preference!'],
     },
 
     message: {
@@ -80,3 +81,6 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
+
+const User = mongoose.model('User', userSchema);
+module.exports = User;

@@ -22,17 +22,3 @@ const sendEmail = catchAsync(async (options) => {
 });
 
 module.exports = sendEmail;
-// module.exports = class Email {
-//   constructor(user, url) {
-//     ((this.to = user.email),
-//       (this.firstname = user.firstname.split(' ')[0]),
-//       (this.url = url),
-//       (this.from = `TechHub Centric ${process.env.EMAIL_FROM}`));
-//   }
-
-//   newTransport() {
-//     if (process.env.NODE_ENV === 'production') {
-//       return 1;
-//     }
-//   }
-// };

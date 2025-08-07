@@ -28,12 +28,16 @@ const hidePassword = (user) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
+  console.log(req.body);
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
+    role: req.body.role,
+    preference: req.body.preference,
+    budget: req.body.budget,
+    message: req.body.meassage,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
-    role: req.body.role,
   });
 
   const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
@@ -42,7 +46,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   hidePassword(newUser);
   res.status(201).json({
-    status: 'suucess',
+    status: 'success',
     token,
     data: {
       user: newUser,
