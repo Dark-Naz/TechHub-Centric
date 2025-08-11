@@ -38,27 +38,27 @@ const userSchema = new mongoose.Schema({
     ],
   },
 
-  //   message: {
-  //     type: String,
-  //     validate: {
-  //       validator: function (val) {
-  //         if (this.role === 'user') {
-  //           return !!val && val.trim().length > 0;
-  //         }
-  //         return true;
-  //       },
-  //       message: 'Input your message',
-  //     },
-  //   },
   message: {
     type: String,
-    required: [
-      function () {
-        return this.role === 'user';
+    validate: {
+      validator: function (val) {
+        if (this.role === 'user') {
+          return !!val && val.trim().length > 0;
+        }
+        return true;
       },
-      'Input your message',
-    ],
+      message: 'Input your message',
+    },
   },
+  //   message: {
+  //     type: String,
+  //     required: [
+  //       function () {
+  //         return this.role === 'user';
+  //       },
+  //       'Input your message',
+  //     ],
+  //   },
   budget: {
     type: Number,
     required: [
@@ -92,10 +92,13 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (this.isModified('email')) return next();
 
-  this.password = await bcrypt.hash(this.password, 12);
-  this.passwordConfirm = undefined;
+  const existing = await mongoose.model('User').findOne({ email: this.email });
+  if (existing) {
+    return next(new Error('Email already in use'));
+  }
+
   next();
 });
 
@@ -103,6 +106,14 @@ userSchema.pre('validate', function (next) {
   if (!this.role) {
     this.role = 'user';
   }
+  next();
+});
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+
+  this.password = await bcrypt.hash(this.password, 12);
+  this.passwordConfirm = undefined;
   next();
 });
 
