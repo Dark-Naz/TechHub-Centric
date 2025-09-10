@@ -38,27 +38,27 @@ const userSchema = new mongoose.Schema({
     ],
   },
 
+  // message: {
+  //   type: String,
+  //   validate: {
+  //     validator: function (val) {
+  //       if (this.role === 'user') {
+  //         return !!val && val.trim().length > 0;
+  //       }
+  //       return true;
+  //     },
+  //     message: 'Input your message',
+  //   },
+  // },
   message: {
     type: String,
-    validate: {
-      validator: function (val) {
-        if (this.role === 'user') {
-          return !!val && val.trim().length > 0;
-        }
-        return true;
+    required: [
+      function () {
+        return this.role === 'user';
       },
-      message: 'Input your message',
-    },
+      'Input your message',
+    ],
   },
-  //   message: {
-  //     type: String,
-  //     required: [
-  //       function () {
-  //         return this.role === 'user';
-  //       },
-  //       'Input your message',
-  //     ],
-  //   },
   budget: {
     type: Number,
     required: [
@@ -114,6 +114,17 @@ userSchema.pre('save', async function (next) {
 
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
+  next();
+});
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('email')) return next();
+
+  const existing = await mongoose.model('User').findOne({ email: this.email });
+  if (existing) {
+    return next(new Error('Email already in use'));
+  }
+
   next();
 });
 
