@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
@@ -18,6 +20,7 @@ const createSendToken = (user, statusCode, res, token) => {
   user.password = undefined;
 
   res.status(statusCode).json({
+    // console.log(token),
     status: 'success',
     token,
   });
@@ -52,4 +55,24 @@ exports.signup = catchAsync(async (req, res, next) => {
       user: newUser,
     },
   });
+});
+
+exports.login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+  // check if email and password exists
+  if (!email || !password) {
+    return next(new AppError('Please provide email and password', 400));
+  }
+  // check if user exists & password is correct
+  const user = await User.findOne({ email }).select('+password');
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    return next(new AppError('Invalid Email or password', 401));
+  }
+
+  // if everything is okay, send token to client
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_COOKIE_EXPIRES_IN,
+  });
+
+  createSendToken(user, 200, res, token);
 });
