@@ -2,6 +2,7 @@ const nodemailer = require('nodemailer');
 const catchAsync = require('./catchAsync');
 
 const sendEmail = catchAsync(async (options) => {
+  // create a transporter
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
@@ -11,6 +12,7 @@ const sendEmail = catchAsync(async (options) => {
     },
   });
 
+  // email options
   const mailOptions = {
     from: `TechHub Centric ${process.env.EMAIL_FROM}`,
     to: options.email,
