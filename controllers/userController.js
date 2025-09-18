@@ -49,3 +49,55 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     data: { user: updatedUser },
   });
 });
+
+exports.getUser = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({ _id: req.params.id });
+  if (!user) {
+    next(new AppError('No user found with that id', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: user,
+  });
+});
+
+exports.getAllUsers = catchAsync(async (req, res, next) => {
+  const users = await User.find();
+  if (!users) {
+    next(new AppError('No users found!', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: users,
+  });
+});
+
+exports.updateUser = catchAsync(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!user) {
+    next(new AppError('No user found with that id', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: user,
+  });
+});
+
+exports.deleteUser = catchAsync(async (req, res, next) => {
+  const user = await User.findByIdAndDelete(req.params.id);
+  if (!user) {
+    next(new AppError('No user found with that id', 404));
+  }
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});

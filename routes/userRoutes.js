@@ -17,4 +17,14 @@ router.get('/me', userController.getMe);
 router.patch('updateMe', userController.updateMe);
 router.delete('deleteMe', userController.deleteMe);
 
+// all routes after this point can inly be accessed by an admin
+router.use(authController.restrictTo('admin'));
+
+router.get('/', userController.getAllUsers);
+router
+  .route('/:id')
+  .get(userController.getUser)
+  .patch(userController.updateUser)
+  .delete(userController.deleteUser);
+
 module.exports = router;
